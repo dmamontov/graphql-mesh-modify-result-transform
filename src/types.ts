@@ -24,17 +24,13 @@ export interface ModifyResultModifierReplaceTransformConfig {
 }
 
 export interface ModifyResultModifierDateTimeTransformConfig {
-    dateTime: ModifyResultModifierDateTimeDateTransformConfig;
+    to: string | DefaultToFormat;
+    from?: string;
+    modify?: string;
 }
 
 export interface ModifyResultModifierFuncTransformConfig {
     func: string;
-}
-
-export interface ModifyResultModifierDateTimeDateTransformConfig {
-    to: string | DefaultToFormat;
-    from?: string;
-    modify?: string;
 }
 
 export enum DefaultToFormat {

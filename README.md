@@ -50,9 +50,9 @@ transforms:
       - typeName: Order
         fields: [ created_at ]
         modifiers:
-          - dateTime:
-              to: timestamp
-              modify: '-3 hours'
+          - to: timestamp
+            from: 'YYYY-MM-DD'
+            modify: '-3 hours'
       - typeName: Order
         fields: [ comment ]
         modifiers:

@@ -24,8 +24,8 @@ export class DatetimeModifier extends BaseModifier {
         const options = this.options as ModifyResultModifierDateTimeTransformConfig;
         let newSchema = schema;
 
-        if (options.dateTime?.to) {
-            switch (options.dateTime.to) {
+        if (options.to) {
+            switch (options.to) {
                 case DefaultToFormat.Timestamp: {
                     this.asType = GraphQLTimestamp;
                     break;
@@ -81,7 +81,7 @@ export class DatetimeModifier extends BaseModifier {
     modifyResult(value: any) {
         const options = this.options as ModifyResultModifierDateTimeTransformConfig;
 
-        if (!options.dateTime?.to) {
+        if (!options.to) {
             return value;
         }
 
@@ -89,7 +89,7 @@ export class DatetimeModifier extends BaseModifier {
         if (this.isGoogleProtobufTimestamp && typeof value === 'object' && value?.seconds) {
             dateTimeMoment = moment(value.seconds * 1000 + (value.nanos || 0) / 1_000_000);
         } else if (isNaN(Number(value))) {
-            dateTimeMoment = moment(value, options.dateTime?.from);
+            dateTimeMoment = moment(value, options.from);
         } else {
             dateTimeMoment = moment.unix(Number(value));
         }
@@ -98,10 +98,10 @@ export class DatetimeModifier extends BaseModifier {
             return value;
         }
 
-        if (options.dateTime?.modify?.includes(' ')) {
+        if (options.modify?.includes(' ')) {
             let amount: string | number;
             let unit: string;
-            [amount, unit] = options.dateTime.modify.split(' ');
+            [amount, unit] = options.modify.split(' ');
 
             amount = parseInt(amount);
 
@@ -115,7 +115,7 @@ export class DatetimeModifier extends BaseModifier {
             }
         }
 
-        switch (options.dateTime.to) {
+        switch (options.to) {
             case DefaultToFormat.Utc: {
                 return dateTimeMoment.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
             }
@@ -123,7 +123,7 @@ export class DatetimeModifier extends BaseModifier {
                 return dateTimeMoment.unix();
             }
             default: {
-                return dateTimeMoment.format(options.dateTime.to);
+                return dateTimeMoment.format(options.to);
             }
         }
     }

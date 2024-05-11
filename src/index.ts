@@ -67,7 +67,7 @@ export default class ModifyResultTransform implements Transform {
                         return createReplaceModifier(modifierConfig);
                     }
 
-                    if ((modifier as ModifyResultModifierDateTimeTransformConfig).dateTime) {
+                    if ((modifier as ModifyResultModifierDateTimeTransformConfig).to) {
                         return createDatetimeModifier(modifierConfig);
                     }
 
