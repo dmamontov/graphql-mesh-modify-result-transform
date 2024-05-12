@@ -5,6 +5,7 @@ import {
     type GraphQLFieldConfig,
     type GraphQLSchema,
 } from 'graphql';
+import { GraphQLNonNull, isNonNullType } from 'graphql/index';
 import {
     type ModifyResultModifierOptions,
     type ModifyResultModifierReplaceTransformConfig,
@@ -23,17 +24,22 @@ export class ReplaceModifier extends BaseModifier {
     }
 
     modifySchema(fieldConfig: GraphQLFieldConfig<any, any>) {
-        const type = this.asType || fieldConfig.type;
+        const isNotNull = isNonNullType(fieldConfig.type);
+        const originalType = isNotNull
+            ? (fieldConfig.type as GraphQLNonNull<any>).ofType
+            : fieldConfig.type;
+
+        const newType = this.asType || originalType;
         if (
-            (!isScalarType(fieldConfig.type) && !isEnumType(fieldConfig.type)) ||
-            (!isScalarType(type) && !isEnumType(type))
+            (!isScalarType(originalType) && !isEnumType(originalType)) ||
+            (!isScalarType(newType) && !isEnumType(newType))
         ) {
             throw new TypeError('Replace modifier only supports scalar and enum types.');
         }
 
         return {
             ...fieldConfig,
-            type,
+            type: isNotNull ? new GraphQLNonNull(newType) : newType,
         };
     }
 

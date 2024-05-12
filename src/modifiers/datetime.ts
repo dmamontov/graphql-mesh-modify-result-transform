@@ -1,5 +1,7 @@
 import {
+    GraphQLNonNull,
     GraphQLString,
+    isNonNullType,
     isObjectType,
     isScalarType,
     type FieldNode,
@@ -49,21 +51,28 @@ export class DatetimeModifier extends BaseModifier {
     }
 
     modifySchema(fieldConfig: GraphQLFieldConfig<any, any>) {
-        this.isGoogleProtobufTimestamp =
-            isObjectType(fieldConfig.type) &&
-            (fieldConfig.type as any).name.toLowerCase().includes('google') &&
-            (fieldConfig.type as any).name.toLowerCase().includes('protobuf') &&
-            (fieldConfig.type as any).name.toLowerCase().includes('timestamp');
+        const isNotNull = isNonNullType(fieldConfig.type);
+        const originalType = isNotNull
+            ? (fieldConfig.type as GraphQLNonNull<any>).ofType
+            : fieldConfig.type;
 
-        if (!isScalarType(fieldConfig.type) && !this.isGoogleProtobufTimestamp) {
+        this.isGoogleProtobufTimestamp =
+            isObjectType(originalType) &&
+            (originalType as any).name.toLowerCase().includes('google') &&
+            (originalType as any).name.toLowerCase().includes('protobuf') &&
+            (originalType as any).name.toLowerCase().includes('timestamp');
+
+        if (!isScalarType(originalType) && !this.isGoogleProtobufTimestamp) {
             throw new TypeError(
                 'Datetime modifier only supports scalar and google.protobuf.timestamp types.',
             );
         }
 
+        const newType = this.asType || originalType;
+
         return {
             ...fieldConfig,
-            type: this.asType || fieldConfig.type,
+            type: isNotNull ? new GraphQLNonNull(newType) : newType,
         };
     }
 

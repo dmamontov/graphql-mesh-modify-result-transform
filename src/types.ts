@@ -31,6 +31,7 @@ export interface ModifyResultModifierDateTimeTransformConfig {
 
 export interface ModifyResultModifierFuncTransformConfig {
     func: string;
+    as?: string;
 }
 
 export enum DefaultToFormat {
