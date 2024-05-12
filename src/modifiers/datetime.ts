@@ -97,10 +97,10 @@ export class DatetimeModifier extends BaseModifier {
         let dateTimeMoment;
         if (this.isGoogleProtobufTimestamp && typeof value === 'object' && value?.seconds) {
             dateTimeMoment = moment(value.seconds * 1000 + (value.nanos || 0) / 1_000_000);
-        } else if (isNaN(Number(value))) {
-            dateTimeMoment = moment(value, options.from);
-        } else {
+        } else if (/^-?\d+(\.\d+)?$/.test(value.toString())) {
             dateTimeMoment = moment.unix(Number(value));
+        } else {
+            dateTimeMoment = moment(value, options.from);
         }
 
         if (!dateTimeMoment.isValid()) {
@@ -126,7 +126,7 @@ export class DatetimeModifier extends BaseModifier {
 
         switch (options.to) {
             case DefaultToFormat.Utc: {
-                return dateTimeMoment.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+                return dateTimeMoment.format('YYYY-MM-DDTHH:mm:ss[Z]');
             }
             case DefaultToFormat.Timestamp: {
                 return dateTimeMoment.unix();
