@@ -11,7 +11,8 @@ export type ModifyResultModifiersTransformConfig =
     | ModifyResultModifierMaskTransformConfig
     | ModifyResultModifierReplaceTransformConfig
     | ModifyResultModifierDateTimeTransformConfig
-    | ModifyResultModifierFuncTransformConfig;
+    | ModifyResultModifierFuncTransformConfig
+    | ModifyResultModifierCaseTransformConfig;
 
 export interface ModifyResultModifierMaskTransformConfig {
     mask: string;
@@ -32,6 +33,29 @@ export interface ModifyResultModifierDateTimeTransformConfig {
 export interface ModifyResultModifierFuncTransformConfig {
     func: string;
     as?: string;
+}
+
+export interface ModifyResultModifierCaseTransformConfig {
+    case: Case;
+    prefix?: string;
+    suffix?: string;
+}
+
+export enum Case {
+    UpperCase = 'upper',
+    LowerCase = 'lower',
+    CamelCase = 'camel',
+    CapitalCase = 'capital',
+    ConstantCase = 'constant',
+    DotCase = 'dot',
+    KebabCase = 'kebab',
+    NoCase = 'no',
+    PascalCase = 'pascal',
+    PascalSnakeCase = 'pascalSnake',
+    PathCase = 'path',
+    SentenceCase = 'sentence',
+    SnakeCase = 'snake',
+    TrainCase = 'train',
 }
 
 export enum DefaultToFormat {

@@ -13,11 +13,13 @@ import {
 import { type ExecutionRequest, type ExecutionResult } from '@graphql-tools/utils';
 import { TransformCompositeFields } from '@graphql-tools/wrap';
 import { BaseModifier, createBaseModifier } from './modifiers/base';
+import { createCaseModifier } from './modifiers/case';
 import { createDatetimeModifier } from './modifiers/datetime';
 import { createFuncModifier } from './modifiers/func';
 import { createMaskModifier } from './modifiers/mask';
 import { createReplaceModifier } from './modifiers/replace';
 import {
+    type ModifyResultModifierCaseTransformConfig,
     type ModifyResultModifierDateTimeTransformConfig,
     type ModifyResultModifierFuncTransformConfig,
     type ModifyResultModifierMaskTransformConfig,
@@ -58,6 +60,10 @@ export default class ModifyResultTransform implements Transform {
 
                     if ((modifier as ModifyResultModifierMaskTransformConfig).mask) {
                         return createMaskModifier(modifierConfig);
+                    }
+
+                    if ((modifier as ModifyResultModifierCaseTransformConfig).case) {
+                        return createCaseModifier(modifierConfig);
                     }
 
                     if (
