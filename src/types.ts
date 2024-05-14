@@ -32,6 +32,7 @@ export interface ModifyResultModifierDateTimeTransformConfig {
 
 export interface ModifyResultModifierFuncTransformConfig {
     func: string;
+    selections?: string;
     as?: string;
 }
 

@@ -10,6 +10,7 @@ import {
 } from 'graphql';
 import { GraphQLDateTime, GraphQLTimestamp } from 'graphql-scalars';
 import moment, { type DurationInputArg2 } from 'moment';
+import { stringInterpolator } from '@graphql-mesh/string-interpolation';
 import { addTypes, parseSelectionSet } from '@graphql-tools/utils';
 import {
     DefaultToFormat,
@@ -87,7 +88,7 @@ export class DatetimeModifier extends BaseModifier {
         return fieldNode;
     }
 
-    modifyResult(value: any) {
+    modifyResult(value: any, _root: any) {
         const options = this.options as ModifyResultModifierDateTimeTransformConfig;
 
         if (!options.to) {
@@ -95,7 +96,7 @@ export class DatetimeModifier extends BaseModifier {
         }
 
         let dateTimeMoment;
-        if (this.isGoogleProtobufTimestamp && typeof value === 'object' && value?.seconds) {
+        if (typeof value === 'object' && value?.seconds) {
             dateTimeMoment = moment(value.seconds * 1000 + (value.nanos || 0) / 1_000_000);
         } else if (/^-?\d+(\.\d+)?$/.test(value.toString())) {
             dateTimeMoment = moment.unix(Number(value));
@@ -107,10 +108,15 @@ export class DatetimeModifier extends BaseModifier {
             return value;
         }
 
-        if (options.modify?.includes(' ')) {
+        let modify = options.modify;
+        if (modify) {
+            modify = stringInterpolator.parse(options.modify, { env: process.env });
+        }
+
+        if (modify?.includes(' ')) {
             let amount: string | number;
             let unit: string;
-            [amount, unit] = options.modify.split(' ');
+            [amount, unit] = modify.split(' ');
 
             amount = parseInt(amount);
 

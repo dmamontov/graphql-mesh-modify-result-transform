@@ -15,7 +15,7 @@ import { TransformCompositeFields } from '@graphql-tools/wrap';
 import { BaseModifier, createBaseModifier } from './modifiers/base';
 import { createCaseModifier } from './modifiers/case';
 import { createDatetimeModifier } from './modifiers/datetime';
-import { createFuncModifier } from './modifiers/func';
+import { createFuncModifier, FuncModifier } from './modifiers/func';
 import { createMaskModifier } from './modifiers/mask';
 import { createReplaceModifier } from './modifiers/replace';
 import {
@@ -192,13 +192,17 @@ export default class ModifyResultTransform implements Transform {
             });
         }
 
-        let newFieldNode = fieldNode;
+        let newFieldNode: FieldNode | FieldNode[] = fieldNode;
         for (const modifier of config.modifiers) {
             if (!(modifier instanceof BaseModifier)) {
                 continue;
             }
 
-            newFieldNode = modifier.modifyRequest(newFieldNode);
+            if (Array.isArray(newFieldNode)) {
+                newFieldNode[0] = modifier.modifyRequest(newFieldNode[0]) as FieldNode;
+            } else {
+                newFieldNode = modifier.modifyRequest(newFieldNode);
+            }
         }
 
         return newFieldNode;
@@ -227,13 +231,16 @@ export default class ModifyResultTransform implements Transform {
                     fieldNameOrAlias = alias.alias;
                 }
 
-                if (value[fieldNameOrAlias]) {
-                    for (const modifier of type.modifiers) {
-                        if (!(modifier instanceof BaseModifier)) {
-                            continue;
-                        }
+                for (const modifier of type.modifiers) {
+                    if (!(modifier instanceof BaseModifier)) {
+                        continue;
+                    }
 
-                        value[fieldNameOrAlias] = modifier.modifyResult(value[fieldNameOrAlias]);
+                    if (value[fieldNameOrAlias] || modifier instanceof FuncModifier) {
+                        value[fieldNameOrAlias] = modifier.modifyResult(
+                            value[fieldNameOrAlias],
+                            value,
+                        );
                     }
                 }
             }

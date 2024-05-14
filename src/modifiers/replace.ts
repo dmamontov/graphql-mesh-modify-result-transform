@@ -43,7 +43,7 @@ export class ReplaceModifier extends BaseModifier {
         };
     }
 
-    modifyResult(value: any) {
+    modifyResult(value: any, _root: any) {
         const options = this.options as ModifyResultModifierReplaceTransformConfig;
 
         const match = value.match(new RegExp(options.match));

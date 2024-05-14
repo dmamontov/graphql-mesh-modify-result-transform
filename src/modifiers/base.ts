@@ -24,11 +24,11 @@ export class BaseModifier {
         return fieldConfig;
     }
 
-    modifyRequest(fieldNode: FieldNode) {
+    modifyRequest(fieldNode: FieldNode): FieldNode | FieldNode[] {
         return fieldNode;
     }
 
-    modifyResult(value: any) {
+    modifyResult(value: any, _root: any) {
         return value;
     }
 }

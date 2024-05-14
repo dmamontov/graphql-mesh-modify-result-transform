@@ -35,7 +35,7 @@ export class CaseModifier extends BaseModifier {
         };
     }
 
-    modifyResult(value: any) {
+    modifyResult(value: any, _root: any) {
         const options = this.options as ModifyResultModifierCaseTransformConfig;
 
         value = value.toString();

@@ -1,9 +1,11 @@
 import {
     GraphQLNonNull,
     isNonNullType,
+    type FieldNode,
     type GraphQLFieldConfig,
     type GraphQLSchema,
 } from 'graphql';
+import { parseSelectionSet } from '@graphql-tools/utils';
 import {
     type ModifyResultModifierFuncTransformConfig,
     type ModifyResultModifierOptions,
@@ -35,13 +37,30 @@ export class FuncModifier extends BaseModifier {
         };
     }
 
-    modifyResult(value: any) {
+    modifyRequest(fieldNode: FieldNode) {
+        const options = this.options as ModifyResultModifierFuncTransformConfig;
+        if (!options.selections) {
+            return fieldNode;
+        }
+
+        const selections: FieldNode[] = parseSelectionSet(options.selections)
+            ?.selections as FieldNode[];
+        if (selections && selections.length > 0) {
+            return [fieldNode].concat(selections);
+        }
+
+        return fieldNode;
+    }
+
+    modifyResult(value: any, root: any) {
         const func = new Function(
             'value',
+            'root',
+            'env',
             'return ' + (this.options as ModifyResultModifierFuncTransformConfig).func,
         );
 
-        return func(value);
+        return func(value, root, process.env);
     }
 }
 

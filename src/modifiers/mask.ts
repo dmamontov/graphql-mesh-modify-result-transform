@@ -29,7 +29,7 @@ export class MaskModifier extends BaseModifier {
         };
     }
 
-    modifyResult(value: any) {
+    modifyResult(value: any, _root: any) {
         return Maskara.apply(
             value.toString(),
             (this.options as ModifyResultModifierMaskTransformConfig).mask,
