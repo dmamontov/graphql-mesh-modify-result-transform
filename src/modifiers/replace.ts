@@ -1,10 +1,4 @@
-import {
-    GraphQLString,
-    isEnumType,
-    isScalarType,
-    type GraphQLFieldConfig,
-    type GraphQLSchema,
-} from 'graphql';
+import { GraphQLString, isEnumType, isScalarType, type GraphQLFieldConfig } from 'graphql';
 import { GraphQLNonNull, isNonNullType } from 'graphql/index';
 import {
     type ModifyResultModifierOptions,
@@ -13,15 +7,7 @@ import {
 import { BaseModifier } from './base';
 
 export class ReplaceModifier extends BaseModifier {
-    protected asType?: any;
-
-    extendScheme(schema: GraphQLSchema) {
-        const options = this.options as ModifyResultModifierReplaceTransformConfig;
-
-        this.asType = options.as ? schema.getType(options.as) : GraphQLString;
-
-        return schema;
-    }
+    protected asType: any = GraphQLString;
 
     modifySchema(fieldConfig: GraphQLFieldConfig<any, any>) {
         const isNotNull = isNonNullType(fieldConfig.type);
@@ -29,26 +15,22 @@ export class ReplaceModifier extends BaseModifier {
             ? (fieldConfig.type as GraphQLNonNull<any>).ofType
             : fieldConfig.type;
 
-        const newType = this.asType || originalType;
-        if (
-            (!isScalarType(originalType) && !isEnumType(originalType)) ||
-            (!isScalarType(newType) && !isEnumType(newType))
-        ) {
+        if (!isScalarType(originalType) && !isEnumType(originalType)) {
             throw new TypeError('Replace modifier only supports scalar and enum types.');
         }
 
         return {
             ...fieldConfig,
-            type: isNotNull ? new GraphQLNonNull(newType) : newType,
+            type: isNotNull ? new GraphQLNonNull(this.asType) : this.asType,
         };
     }
 
     modifyResult(value: any, _root: any) {
         const options = this.options as ModifyResultModifierReplaceTransformConfig;
 
-        const match = value.match(new RegExp(options.match));
+        const match = value?.toString().match(new RegExp(options.match));
         if (!match) {
-            return value;
+            return value?.toString();
         }
 
         return options.result.replaceAll(/\$(\d+)/g, (fullMatch: any, number: number) => {

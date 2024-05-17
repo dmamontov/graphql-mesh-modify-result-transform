@@ -1,6 +1,7 @@
 import {
     GraphQLNonNull,
     GraphQLString,
+    isEnumType,
     isNonNullType,
     isScalarType,
     type GraphQLFieldConfig,
@@ -19,8 +20,8 @@ export class MaskModifier extends BaseModifier {
             ? (fieldConfig.type as GraphQLNonNull<any>).ofType
             : fieldConfig.type;
 
-        if (!isScalarType(originalType)) {
-            throw new TypeError('Mask modifier only supports scalar types.');
+        if (!isScalarType(originalType) && !isEnumType(originalType)) {
+            throw new TypeError('Mask modifier only supports scalar and enum types.');
         }
 
         return {

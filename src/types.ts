@@ -8,11 +8,16 @@ export interface ModifyResultTransformConfig {
 }
 
 export type ModifyResultModifiersTransformConfig =
+    | ModifyResultModifierAsTransformConfig
     | ModifyResultModifierMaskTransformConfig
     | ModifyResultModifierReplaceTransformConfig
     | ModifyResultModifierDateTimeTransformConfig
     | ModifyResultModifierFuncTransformConfig
     | ModifyResultModifierCaseTransformConfig;
+
+export interface ModifyResultModifierAsTransformConfig {
+    as: string;
+}
 
 export interface ModifyResultModifierMaskTransformConfig {
     mask: string;
@@ -21,7 +26,6 @@ export interface ModifyResultModifierMaskTransformConfig {
 export interface ModifyResultModifierReplaceTransformConfig {
     match: string;
     result: string;
-    as?: string;
 }
 
 export interface ModifyResultModifierDateTimeTransformConfig {
@@ -33,7 +37,6 @@ export interface ModifyResultModifierDateTimeTransformConfig {
 export interface ModifyResultModifierFuncTransformConfig {
     func: string;
     selections?: string;
-    as?: string;
 }
 
 export interface ModifyResultModifierCaseTransformConfig {
@@ -66,6 +69,12 @@ export enum DefaultToFormat {
 
 export interface ModifyResultTransformAlias {
     type: string;
+    name: string;
+    alias: string;
+}
+
+export interface ModifyResultAsTransformAlias {
+    parentName: string;
     name: string;
     alias: string;
 }
