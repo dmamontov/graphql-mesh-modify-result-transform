@@ -1,6 +1,6 @@
 {
   "name": "@dmamontov/graphql-mesh-modify-result-transform",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Dmitry Mamontov",
   "type": "module",
   "repository": {

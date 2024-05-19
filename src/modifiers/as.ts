@@ -3,6 +3,7 @@ import {
     GraphQLFloat,
     GraphQLID,
     GraphQLInt,
+    GraphQLList,
     GraphQLNonNull,
     GraphQLString,
     isNonNullType,
@@ -167,12 +168,16 @@ export class AsModifier extends BaseModifier {
     ];
 
     protected asType?: any;
+    protected isList: boolean = false;
 
     protected rootAlias: ModifyResultAsTransformAlias;
     protected aliases: ModifyResultAsTransformAlias[] = [];
 
     extendScheme(schema: GraphQLSchema) {
-        const type = (this.options as ModifyResultModifierAsTransformConfig).as;
+        let type = (this.options as ModifyResultModifierAsTransformConfig).as;
+        this.isList = type.startsWith('[') && type.endsWith(']');
+        type = type.replace('[', '').replace(']', '');
+
         let newSchema = schema;
 
         this.asType = newSchema.getType(type);
@@ -195,9 +200,14 @@ export class AsModifier extends BaseModifier {
     modifySchema(fieldConfig: GraphQLFieldConfig<any, any>) {
         const isNotNull = isNonNullType(fieldConfig.type);
 
+        let type = this.asType;
+        if (this.isList) {
+            type = new GraphQLList(type);
+        }
+
         return {
             ...fieldConfig,
-            type: isNotNull ? new GraphQLNonNull(this.asType) : this.asType,
+            type: isNotNull ? new GraphQLNonNull(type) : type,
         };
     }
 
