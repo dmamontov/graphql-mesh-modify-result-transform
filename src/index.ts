@@ -12,24 +12,15 @@ import {
 } from '@graphql-tools/delegate';
 import { type ExecutionRequest, type ExecutionResult } from '@graphql-tools/utils';
 import { TransformCompositeFields } from '@graphql-tools/wrap';
-import { createAsModifier } from './modifiers/as';
-import { BaseModifier, createBaseModifier } from './modifiers/base';
-import { createCaseModifier } from './modifiers/case';
-import { createDatetimeModifier } from './modifiers/datetime';
-import { createFuncModifier, FuncModifier } from './modifiers/func';
-import { createMaskModifier } from './modifiers/mask';
-import { createReplaceModifier } from './modifiers/replace';
+import { BaseModifier } from './modifiers/base';
+import { FuncModifier } from './modifiers/func';
 import {
-    type ModifyResultModifierAsTransformConfig,
-    type ModifyResultModifierCaseTransformConfig,
-    type ModifyResultModifierDateTimeTransformConfig,
-    type ModifyResultModifierFuncTransformConfig,
-    type ModifyResultModifierMaskTransformConfig,
     type ModifyResultModifierOptions,
-    type ModifyResultModifierReplaceTransformConfig,
+    type ModifyResultModifiersTransformConfig,
     type ModifyResultTransformAlias,
     type ModifyResultTransformConfig,
 } from './types';
+import { createModifier } from './utils';
 
 export default class ModifyResultTransform implements Transform {
     public noWrap: boolean = false;
@@ -50,40 +41,14 @@ export default class ModifyResultTransform implements Transform {
             return {
                 ...config,
                 modifiers: config.modifiers.map(modifier => {
-                    const modifierConfig = {
-                        baseDir,
-                        options: modifier,
-                        importFn,
-                    } as ModifyResultModifierOptions;
-
-                    if ((modifier as ModifyResultModifierAsTransformConfig).as) {
-                        return createAsModifier(modifierConfig);
-                    }
-
-                    if ((modifier as ModifyResultModifierFuncTransformConfig).func) {
-                        return createFuncModifier(modifierConfig);
-                    }
-
-                    if ((modifier as ModifyResultModifierMaskTransformConfig).mask) {
-                        return createMaskModifier(modifierConfig);
-                    }
-
-                    if ((modifier as ModifyResultModifierCaseTransformConfig).case) {
-                        return createCaseModifier(modifierConfig);
-                    }
-
-                    if (
-                        (modifier as ModifyResultModifierReplaceTransformConfig).match &&
-                        (modifier as ModifyResultModifierReplaceTransformConfig).result
-                    ) {
-                        return createReplaceModifier(modifierConfig);
-                    }
-
-                    if ((modifier as ModifyResultModifierDateTimeTransformConfig).to) {
-                        return createDatetimeModifier(modifierConfig);
-                    }
-
-                    return createBaseModifier(modifierConfig);
+                    return createModifier(
+                        modifier as ModifyResultModifiersTransformConfig,
+                        {
+                            baseDir,
+                            options: modifier,
+                            importFn,
+                        } as ModifyResultModifierOptions,
+                    );
                 }),
             };
         });

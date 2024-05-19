@@ -90,6 +90,7 @@ import {
     type ModifyResultModifierAsTransformConfig,
     type ModifyResultModifierOptions,
 } from '../types';
+import { createModifier } from '../utils';
 import { BaseModifier } from './base';
 
 export class AsModifier extends BaseModifier {
@@ -228,7 +229,32 @@ export class AsModifier extends BaseModifier {
     }
 
     modifyResult(value: any, _root: any): any {
-        const result = this.transformKeys(value, this.rootAlias);
+        const subs = (this.options as ModifyResultModifierAsTransformConfig).sub || [];
+        const modifiers: Record<string, BaseModifier[]> = {};
+
+        for (const sub of subs) {
+            if (sub.path && sub.modifiers) {
+                const buildModifiers = sub.modifiers
+                    .filter(modifier => !(modifier as ModifyResultModifierAsTransformConfig).as)
+                    .map(modifier => {
+                        return createModifier(modifier, {
+                            baseDir: this.baseDir,
+                            options: modifier,
+                            importFn: this.importFn,
+                        } as ModifyResultModifierOptions);
+                    });
+
+                if (typeof sub.path === 'string') {
+                    sub.path = [sub.path];
+                }
+
+                for (const path of sub.path) {
+                    modifiers[path] = buildModifiers;
+                }
+            }
+        }
+
+        const result = this.transformKeys(value, this.rootAlias, modifiers);
 
         if ((value !== null && typeof value === 'object') || Array.isArray(result)) {
             return deepClean(result);
@@ -236,9 +262,14 @@ export class AsModifier extends BaseModifier {
         return result;
     }
 
-    private transformKeys(value: any, parent: ModifyResultAsTransformAlias): any {
+    private transformKeys(
+        value: any,
+        parent: ModifyResultAsTransformAlias,
+        modifiers: Record<string, BaseModifier[]>,
+        currentPath?: string,
+    ): any {
         if (Array.isArray(value)) {
-            return value.map(item => this.transformKeys(item, parent));
+            return value.map(item => this.transformKeys(item, parent, modifiers, currentPath));
         }
 
         if (value !== null && typeof value === 'object') {
@@ -248,13 +279,26 @@ export class AsModifier extends BaseModifier {
                     alias => alias.name === key && alias.parentName === parent.name,
                 );
                 const newKey = aliasInfo ? aliasInfo.alias : key;
-                newObj[newKey] = this.transformKeys(value[key], aliasInfo);
+                newObj[newKey] = this.transformKeys(
+                    value[key],
+                    aliasInfo,
+                    modifiers,
+                    currentPath ? `${currentPath}.${key}` : key,
+                );
             }
 
             return newObj;
         }
 
-        return value;
+        let result = value;
+
+        if (currentPath && Object.keys(modifiers).includes(currentPath)) {
+            for (const modifier of modifiers[currentPath]) {
+                result = modifier.modifyResult(result, {});
+            }
+        }
+
+        return result;
     }
 
     private generateAliases(selectionSet: SelectionSetNode, parentName: string): void {

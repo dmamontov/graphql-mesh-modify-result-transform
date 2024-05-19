@@ -17,6 +17,12 @@ export type ModifyResultModifiersTransformConfig =
 
 export interface ModifyResultModifierAsTransformConfig {
     as: string;
+    sub: ModifyResultModifierAsSubTransformConfig[];
+}
+
+export interface ModifyResultModifierAsSubTransformConfig {
+    path: string | string[];
+    modifiers: ModifyResultModifiersTransformConfig[];
 }
 
 export interface ModifyResultModifierMaskTransformConfig {

@@ -135,9 +135,7 @@ export class DatetimeModifier extends BaseModifier {
                 return dateTimeMoment.format('YYYY-MM-DDTHH:mm:ss[Z]');
             }
             case DefaultToFormat.Timestamp: {
-                const timestamp = dateTimeMoment.unix();
-
-                return timestamp.toString().length > 10 ? Math.floor(timestamp / 1000) : timestamp;
+                return dateTimeMoment.unix();
             }
             default: {
                 return dateTimeMoment.format(options.to);
