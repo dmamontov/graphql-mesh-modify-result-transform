@@ -1,6 +1,6 @@
 {
   "name": "@dmamontov/graphql-mesh-modify-result-transform",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Dmitry Mamontov",
   "type": "module",
   "repository": {
@@ -46,6 +46,7 @@
     "@graphql-tools/utils": "^10.2.0",
     "@graphql-tools/wrap": "^10.0.0",
     "change-case": "^4.1.2",
+    "clean-deep": "^3.4.0",
     "graphql": "*",
     "graphql-scalars": "^1.23.0",
     "moment": "^2.30.1"

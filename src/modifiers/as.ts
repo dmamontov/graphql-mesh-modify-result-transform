@@ -1,3 +1,4 @@
+import deepClean from 'clean-deep';
 import {
     GraphQLBoolean,
     GraphQLFloat,
@@ -227,7 +228,12 @@ export class AsModifier extends BaseModifier {
     }
 
     modifyResult(value: any, _root: any): any {
-        return this.transformKeys(value, this.rootAlias);
+        const result = this.transformKeys(value, this.rootAlias);
+
+        if ((value !== null && typeof value === 'object') || Array.isArray(result)) {
+            return deepClean(result);
+        }
+        return result;
     }
 
     private transformKeys(value: any, parent: ModifyResultAsTransformAlias): any {
