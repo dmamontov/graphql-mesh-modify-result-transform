@@ -173,6 +173,25 @@ export default class ModifyResultTransform implements Transform {
                 newFieldNode[0] = modifier.modifyRequest(newFieldNode[0]) as FieldNode;
             } else {
                 newFieldNode = modifier.modifyRequest(newFieldNode);
+                if (Array.isArray(newFieldNode)) {
+                    let selectionsNodes: FieldNode[] = [];
+                    const firstFieldNode = newFieldNode.shift();
+
+                    for (const newNode of newFieldNode) {
+                        const modifiedSelection = this.modifyRequest(
+                            typeName,
+                            newNode.name.value,
+                            newNode,
+                        );
+                        if (Array.isArray(modifiedSelection)) {
+                            selectionsNodes = [...selectionsNodes, ...modifiedSelection];
+                        } else {
+                            selectionsNodes.push(modifiedSelection);
+                        }
+                    }
+
+                    newFieldNode = [firstFieldNode, ...selectionsNodes];
+                }
             }
         }
 

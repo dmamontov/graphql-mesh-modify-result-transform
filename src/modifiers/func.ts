@@ -13,10 +13,10 @@ export class FuncModifier extends BaseModifier {
             return fieldNode;
         }
 
-        const selections: FieldNode[] = parseSelectionSet(options.selections)
+        const selections: FieldNode[] = parseSelectionSet(options.selections, { noLocation: true })
             ?.selections as FieldNode[];
         if (selections && selections.length > 0) {
-            return [fieldNode].concat(selections);
+            return [fieldNode, ...selections];
         }
 
         return fieldNode;
