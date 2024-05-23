@@ -91,14 +91,14 @@ export class DatetimeModifier extends BaseModifier {
     modifyResult(value: any, _root: any) {
         const options = this.options as ModifyResultModifierDateTimeTransformConfig;
 
-        if (!options.to) {
+        if (!options.to || !value) {
             return value;
         }
 
         let dateTimeMoment;
         if (typeof value === 'object' && value?.seconds) {
             dateTimeMoment = moment(value.seconds * 1000 + (value.nanos || 0) / 1_000_000);
-        } else if (/^-?\d+(\.\d+)?$/.test(value.toString())) {
+        } else if (/^-?\d+(\.\d+)?$/.test(value?.toString())) {
             dateTimeMoment = moment.unix(Number(value));
         } else {
             dateTimeMoment = moment(value, options.from);
