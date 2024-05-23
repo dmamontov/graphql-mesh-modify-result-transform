@@ -92,20 +92,22 @@ export class DatetimeModifier extends BaseModifier {
         const options = this.options as ModifyResultModifierDateTimeTransformConfig;
 
         if (!options.to || !value) {
-            return value;
+            return undefined;
         }
 
         let dateTimeMoment;
         if (typeof value === 'object' && value?.seconds) {
             dateTimeMoment = moment(value.seconds * 1000 + (value.nanos || 0) / 1_000_000);
-        } else if (/^-?\d+(\.\d+)?$/.test(value?.toString())) {
-            dateTimeMoment = moment.unix(Number(value));
-        } else {
-            dateTimeMoment = moment(value, options.from);
+        } else if (typeof value !== 'object') {
+            if (/^-?\d+(\.\d+)?$/.test(value?.toString())) {
+                dateTimeMoment = moment.unix(Number(value));
+            } else {
+                dateTimeMoment = moment(value, options.from);
+            }
         }
 
-        if (!dateTimeMoment.isValid()) {
-            return value;
+        if (!dateTimeMoment && !dateTimeMoment.isValid()) {
+            return undefined;
         }
 
         let modify = options.modify;
