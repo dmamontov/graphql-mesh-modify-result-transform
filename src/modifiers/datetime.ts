@@ -106,7 +106,7 @@ export class DatetimeModifier extends BaseModifier {
             }
         }
 
-        if (!dateTimeMoment && !dateTimeMoment.isValid()) {
+        if (!dateTimeMoment?.isValid()) {
             return undefined;
         }
 
