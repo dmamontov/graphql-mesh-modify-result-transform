@@ -276,12 +276,16 @@ export class AsModifier extends BaseModifier {
             const newObj: any = {};
             for (const key in value) {
                 const aliasInfo = this.aliases.find(
-                    alias => alias.name === key && alias.parentName === parent.name,
+                    alias => alias.name === key && alias.parentName === parent?.name,
                 );
                 const newKey = aliasInfo ? aliasInfo.alias : key;
                 newObj[newKey] = this.transformKeys(
                     value[key],
-                    aliasInfo,
+                    aliasInfo || {
+                        parentName: parent?.name || 'root',
+                        name: key,
+                        alias: key,
+                    },
                     modifiers,
                     currentPath ? `${currentPath}.${key}` : key,
                 );
